@@ -3,6 +3,11 @@
 import pygame
 from shooter import Player
 from game_functions import check_events
+from enemies import Enemy
+from pygame.sprite import Group, groupcollide
+
+
+
 # the core functionality/loop
 def run_game():
 	# Init all the pygame stuff
@@ -17,15 +22,39 @@ def run_game():
 	pygame.display.set_caption("3rd Person Shooter")
 
 
-	the_shooter = Player(screen)
+	the_shooter = Player(screen, './images/Hero.png', 100, 100)
+	the_shooter_group = Group()
+	the_shooter_group.add(the_shooter)
+	bad_guy = Enemy(screen)
+	enemies = Group()
+	enemies.add(bad_guy)
+	bullets = Group()
+
+	tick = 0
+
+
 	# Main game loop run forever...(or until break)
 	# could also use Boolean instead of 1...
 	while 1:
-		screen.fill(background_color)
-		check_events()
+		tick += 1
+		if tick % 40 == 0:
+			enemies.add(Enemy(screen))
 
-		#Draw player
-		the_shooter.draw_me()
+		screen.fill(background_color)
+		check_events(the_shooter, screen, bullets)
+
+		# Draw the shooter
+		for shooter in the_player_group:
+			the_shooter.draw_me()
+
+
+		for bad_gu in enemies:
+			bad_guy.update_me(the_shooter)
+			bad_guy.draw_me()
+
+		hero_died = groupcollide(the_shooter_group, enemies, True, False)
+		bullet_hit = groupcollide(bullets,enemies,True,True)
+		print bullet_hit
 
 		# clear the screen for the next time throught the loop					
 		pygame.display.flip()
